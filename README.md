@@ -1,73 +1,98 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://kamilmysliwiec.com/public/nest-logo.png#1" alt="Nest Logo" />   </a>
+  <a href="https://neo4j.com" target="_blank"><img src="https://dist.neo4j.com/wp-content/uploads/20140926224303/neo4j_logo-facebook.png" width="380"></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Neo4j Module
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Neo4j integration for Nest Application
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This repository provides [Neo4j](https://www.neo4j.com) integration for [Nest](http://nestjs.com/).
 
 ## Installation
 
 ```bash
-$ npm install
+
+$ npm install --save neo4j-module
+
 ```
 
-## Running the app
+or 
 
 ```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
+$ yarn add neo4j-module
 
-# production mode
-$ npm run start:prod
 ```
 
-## Test
+## Quick Start
 
-```bash
-# unit tests
-$ npm run test
+We need to register our neo4j module in our root module, 
 
-# e2e tests
-$ npm run test:e2e
+```typescript
 
-# test coverage
-$ npm run test:cov
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { Neo4jModule } from 'neo4j-module';
+
+@Module({
+  imports: [
+    Neo4jModule.forRootAsync({
+      scheme: 'bolt',
+      host: 'localhost',
+      port: '7687',
+      username: 'neo4j',
+      password: 'ne04j'
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService]
+})
+export class AppModule {}
+
 ```
 
-## Support
+## Querying Neo4j
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The `Neo4jService` is `@Injectable`, so can be passed into any constructor. And for querying
+you have to be familiar with the [cyper-query-builder](https://jamesfer.me/cypher-query-builder/index.html) module.
 
-## Stay in touch
+Note that you have to inject the **Neo4jService** using the **@Inject()** decorator
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```typescript
 
-## License
+import { Inject } from '@nestjs/common';
+import { Neo4jService } from 'neo4j-module';
 
-Nest is [MIT licensed](LICENSE).
+@Controller("todos")
+export class AppController {
+  constructor(
+    @Inject(Neo4jService) private readonly neo4jModule: Neo4jService,
+  ) {}
+
+  @Get("")
+  async getTodos() {
+    const query = this.neo4jModule.initQuery();
+
+    try {
+      const result = await query.matchNode('todo', 'Todo').return('todo').run();
+
+      if (result && result.length > 0) {
+        const todos = result.map((todo) => {
+          const todoData = todo.get('todo').properties;
+
+          return new Todo(todoData);
+        });
+
+        return todos;
+      }
+    } catch (err) {
+      throw new HttpException("Can't get Todos", 500);
+    }
+  }
+}
+
+```
