@@ -1,11 +1,22 @@
 {
   "name": "neo4j-module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Module that make connection with neo4j database",
   "author": "dilane3",
   "private": false,
   "license": "MIT",
   "main": "dist/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adam-cowley/nest-neo4j.git"
+  },
+  "keywords": [
+    "nest",
+    "neo4j",
+    "database",
+    "connection",
+    "query"
+  ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
