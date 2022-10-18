@@ -1,15 +1,19 @@
 {
   "name": "neo4j-module",
   "version": "1.0.0",
-  "description": "Module that make connection with neo4j database",
+  "description": "Module that make connection with neo4j database in a nestjs application.",
   "author": "dilane3",
   "private": false,
   "license": "MIT",
   "main": "dist/main.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adam-cowley/nest-neo4j.git"
+    "url": "git+https://github.com/dilane3/neo4j-module.git"
   },
+  "bugs": {
+    "url": "https://github.com/dilane3/neo4j-module/issues"
+  },
+  "homepage": "https://github.com/dilane3/neo4j-module#readme",
   "keywords": [
     "nest",
     "neo4j",
