@@ -1,6 +1,6 @@
 {
   "name": "neo4j-module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Module that make connection with neo4j database in a nestjs application.",
   "author": "dilane3",
   "private": false,
