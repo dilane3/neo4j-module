@@ -33,6 +33,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Neo4jModule } from 'neo4j-module';
+import { Todo } from './entity/todo.entity';
 
 @Module({
   imports: [
@@ -65,19 +66,19 @@ import { Neo4jService } from 'neo4j-module';
 @Controller('todos')
 export class AppController {
   constructor(
-    @Inject(Neo4jService) private readonly neo4jModule: Neo4jService,
+    @Inject(Neo4jService) private readonly neo4jService: Neo4jService,
   ) {}
 
   @Get('')
   async getTodos() {
-    const query = this.neo4jModule.initQuery();
+    const query = this.neo4jService.initQuery();
 
     try {
       const result = await query.matchNode('todo', 'Todo').return('todo').run();
 
       if (result && result.length > 0) {
         const todos = result.map((todo) => {
-          const todoData = todo.get('todo').properties;
+          const todoData = todo['todo'].properties;
 
           return new Todo(todoData);
         });
@@ -91,7 +92,7 @@ export class AppController {
 }
 ```
 
-## Keywrods
+## Keywords
 
 - nestjs
 - neo4j
